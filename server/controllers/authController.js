@@ -2,14 +2,22 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// =====================
-// Register User
-// =====================
+// ==============================
+// REGISTER USER
+// ==============================
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // Check if user already exists
+    // Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all required fields",
+      });
+    }
+
+    // Check existing user
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -19,10 +27,10 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // Hash Password
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Save User
+    // Create user
     const user = await User.create({
       name,
       email,
@@ -42,7 +50,7 @@ export const registerUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Register Error:", error);
 
     res.status(500).json({
       success: false,
@@ -51,12 +59,21 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// =====================
-// Login User
-// =====================
+// ==============================
+// LOGIN USER
+// ==============================
 export const loginUser = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
+
+    const { email, password } = req.body;
+
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and Password are required",
+      });
+    }
 
     // Find User
     const user = await User.findOne({ email });
@@ -78,7 +95,7 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    // Generate Token
+    // JWT Token
     const token = jwt.sign(
       {
         id: user._id,
@@ -103,7 +120,7 @@ export const loginUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Login Error:", error);
 
     res.status(500).json({
       success: false,
