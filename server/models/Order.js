@@ -2,32 +2,25 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    customer: {
+      type: String,
       required: true,
     },
 
-    products: [
+    email: {
+      type: String,
+      required: true,
+    },
+
+    items: [
       {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-
-        quantity: {
-          type: Number,
-          default: 1,
-        },
-
-        price: {
-          type: Number,
-          required: true,
-        },
+        name: String,
+        price: Number,
+        quantity: Number,
       },
     ],
 
-    shippingAddress: {
+    address: {
       fullName: String,
       phone: String,
       address: String,
@@ -41,27 +34,14 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    paymentMethod: {
-      type: String,
-      default: "Razorpay",
-    },
-
     paymentStatus: {
       type: String,
-      enum: ["Pending", "Paid", "Failed"],
       default: "Pending",
     },
 
     orderStatus: {
       type: String,
-      enum: [
-        "Pending",
-        "Processing",
-        "Shipped",
-        "Delivered",
-        "Cancelled",
-      ],
-      default: "Pending",
+      default: "Processing",
     },
   },
   {
