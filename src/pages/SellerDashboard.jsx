@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import Navbar from "../components/Navbar";
 import api from "../services/api";
 
 function SellerDashboard() {
-  const [form, setForm] = useState({
+  const [products, setProducts] = useState([]);
+
+  const [product, setProduct] = useState({
     name: "",
     description: "",
     category: "",
@@ -11,54 +14,29 @@ function SellerDashboard() {
     stock: "",
   });
 
-  const [products, setProducts] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // Fetch Products
-  const fetchProducts = async () => {
-    try {
-      const res = await api.get("/api/products");
-      setProducts(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // Add / Update Product
-  const addProduct = async (e) => {
-    e.preventDefault();
+  const fetchProducts = async () => {
+    const res = await api.get("/api/products");
+    setProducts(res.data);
+  };
 
+  const handleChange = (e) => {
+    setProduct({
+      ...product,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const addProduct = async () => {
     try {
-      if (editingId) {
-        await api.put(`/api/products/${editingId}`, {
-          ...form,
-          price: Number(form.price),
-          stock: Number(form.stock),
-        });
+      await api.post("/api/products", product);
 
-        alert("✅ Product Updated Successfully!");
-      } else {
-        await api.post("/api/products", {
-          ...form,
-          price: Number(form.price),
-          stock: Number(form.stock),
-        });
+      alert("✅ Product Added");
 
-        alert("✅ Product Added Successfully!");
-      }
-
-      setForm({
+      setProduct({
         name: "",
         description: "",
         category: "",
@@ -67,215 +45,147 @@ function SellerDashboard() {
         stock: "",
       });
 
-      setEditingId(null);
-
       fetchProducts();
 
     } catch (err) {
-      alert(err.response?.data?.message || "Operation Failed");
+      alert(err.response?.data?.message);
     }
   };
 
-  // Delete Product
   const deleteProduct = async (id) => {
     if (!window.confirm("Delete this product?")) return;
 
-    try {
-      await api.delete(`/api/products/${id}`);
+    await api.delete(`/api/products/${id}`);
 
-      alert("🗑 Product Deleted");
-
-      fetchProducts();
-
-    } catch (err) {
-      alert("Delete Failed");
-    }
-  };
-
-  // Edit Product
-  const editProduct = (product) => {
-    setEditingId(product._id);
-
-    setForm({
-      name: product.name,
-      description: product.description,
-      category: product.category,
-      image: product.image,
-      price: product.price,
-      stock: product.stock,
-    });
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    fetchProducts();
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-10">
+    <>
+      <Navbar />
 
-      <h1 className="text-4xl font-bold mb-10 text-center">
-        🏪 Seller Dashboard
-      </h1>
+      <div className="min-h-screen bg-slate-900 text-white p-10">
 
-      <div className="grid lg:grid-cols-2 gap-10">
+        <h1 className="text-4xl font-bold mb-10">
+          🏪 Seller Dashboard
+        </h1>
 
-        {/* Form */}
+        {/* Add Product Form */}
 
-        <form
-          onSubmit={addProduct}
-          className="bg-slate-800 p-8 rounded-2xl shadow-xl"
-        >
-
-          <h2 className="text-2xl font-bold mb-6">
-            {editingId ? "✏️ Edit Product" : "➕ Add Product"}
-          </h2>
+        <div className="bg-slate-800 p-8 rounded-xl">
 
           <input
-            type="text"
             name="name"
             placeholder="Product Name"
-            value={form.name}
+            value={product.name}
             onChange={handleChange}
-            className="w-full p-3 rounded mb-4 text-black"
+            className="w-full p-3 rounded mb-3 text-black"
           />
 
-          <input
-            type="text"
+          <textarea
             name="description"
             placeholder="Description"
-            value={form.description}
+            value={product.description}
             onChange={handleChange}
-            className="w-full p-3 rounded mb-4 text-black"
+            className="w-full p-3 rounded mb-3 text-black"
           />
 
           <input
-            type="text"
             name="category"
             placeholder="Category"
-            value={form.category}
+            value={product.category}
             onChange={handleChange}
-            className="w-full p-3 rounded mb-4 text-black"
+            className="w-full p-3 rounded mb-3 text-black"
           />
 
           <input
-            type="file"
-            accept="image/*"
-            onChange={async (e) => {
-              const file = e.target.files[0];
-
-              const formData = new FormData();
-              formData.append("image", file);
-
-              const res = await api.post("/api/upload", formData);
-
-              setForm({
-               ...form,
-              image: res.data.imageUrl,
-              });
-            }}
-             className="w-full p-3 rounded mb-4 text-white"
+            name="image"
+            placeholder="Image URL"
+            value={product.image}
+            onChange={handleChange}
+            className="w-full p-3 rounded mb-3 text-black"
           />
 
           <input
-            type="number"
             name="price"
+            type="number"
             placeholder="Price"
-            value={form.price}
+            value={product.price}
             onChange={handleChange}
-            className="w-full p-3 rounded mb-4 text-black"
+            className="w-full p-3 rounded mb-3 text-black"
           />
 
           <input
-            type="number"
             name="stock"
+            type="number"
             placeholder="Stock"
-            value={form.stock}
+            value={product.stock}
             onChange={handleChange}
-            className="w-full p-3 rounded mb-6 text-black"
+            className="w-full p-3 rounded mb-5 text-black"
           />
 
           <button
-            type="submit"
-            className="w-full bg-violet-600 hover:bg-violet-700 py-3 rounded-lg font-bold"
+            onClick={addProduct}
+            className="bg-green-600 w-full py-3 rounded-xl font-bold"
           >
-            {editingId ? "💾 Update Product" : "➕ Add Product"}
+            ➕ Add Product
           </button>
 
-        </form>
+        </div>
 
-        {/* Product List */}
+        {/* My Products */}
 
-        <div className="bg-slate-800 p-8 rounded-2xl shadow-xl">
+        <h2 className="text-3xl font-bold mt-12 mb-6">
+          📦 My Products
+        </h2>
 
-          <h2 className="text-2xl font-bold mb-6">
-            📦 My Products
-          </h2>
+        <div className="grid md:grid-cols-3 gap-6">
 
-          {products.length === 0 ? (
-            <p className="text-gray-400">
-              No products added yet.
-            </p>
-          ) : (
-            products.map((product) => (
-              <div
-                key={product._id}
-                className="bg-slate-700 rounded-xl p-4 mb-5"
-              >
+          {products.map((item) => (
 
-                {product.image && (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded-lg mb-3"
-                  />
-                )}
+            <div
+              key={item._id}
+              className="bg-slate-800 rounded-xl overflow-hidden"
+            >
+
+              <img
+                src={item.image}
+                className="w-full h-48 object-cover"
+              />
+
+              <div className="p-5">
 
                 <h3 className="text-xl font-bold">
-                  {product.name}
+                  {item.name}
                 </h3>
 
-                <p>{product.description}</p>
+                <p>{item.category}</p>
 
                 <p className="mt-2">
-                  📂 {product.category}
+                  ₹{item.price}
                 </p>
 
-                <p className="text-green-400 font-bold">
-                  ₹{product.price}
+                <p>
+                  Stock : {item.stock}
                 </p>
 
-                <p className="mb-4">
-                  Stock: {product.stock}
-                </p>
-
-                <div className="flex gap-3">
-
-                  <button
-                    onClick={() => editProduct(product)}
-                    className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"
-                  >
-                    ✏️ Edit
-                  </button>
-
-                  <button
-                    onClick={() => deleteProduct(product._id)}
-                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg"
-                  >
-                    🗑 Delete
-                  </button>
-
-                </div>
+                <button
+                  onClick={() => deleteProduct(item._id)}
+                  className="bg-red-600 mt-4 px-5 py-2 rounded"
+                >
+                  Delete
+                </button>
 
               </div>
-            ))
-          )}
+
+            </div>
+
+          ))}
 
         </div>
 
       </div>
-
-    </div>
+    </>
   );
 }
 
