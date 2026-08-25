@@ -3,10 +3,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Checkout from "./pages/Checkout";
 import AdminDashboard from "./pages/AdminDashboard";
 import SellerDashboard from "./pages/SellerDashboard";
-import Checkout from "./pages/Checkout";
+
 import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
+import Orders from "./pages/Orders";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -15,11 +18,20 @@ function App() {
     <BrowserRouter>
       <Routes>
 
+        {/* Public Pages */}
         <Route path="/" element={<Home />} />
-
         <Route path="/login" element={<Login />} />
-
         <Route path="/register" element={<Register />} />
+
+        {/* Protected Pages */}
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/cart"
@@ -31,10 +43,19 @@ function App() {
         />
 
         <Route
-          path="/checkout"
+          path="/wishlist"
           element={
             <ProtectedRoute>
-              <Checkout />
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Orders />
             </ProtectedRoute>
           }
         />
