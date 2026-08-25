@@ -4,12 +4,13 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Checkout from "./pages/Checkout";
-import AdminDashboard from "./pages/AdminDashboard";
-import SellerDashboard from "./pages/SellerDashboard";
 
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
+
+import AdminDashboard from "./pages/AdminDashboard";
+import SellerDashboard from "./pages/SellerDashboard";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -18,21 +19,14 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Public Pages */}
+        {/* Home */}
         <Route path="/" element={<Home />} />
+
+        {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected Pages */}
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          }
-        />
-
+        {/* Cart */}
         <Route
           path="/cart"
           element={
@@ -42,6 +36,7 @@ function App() {
           }
         />
 
+        {/* Wishlist */}
         <Route
           path="/wishlist"
           element={
@@ -51,6 +46,17 @@ function App() {
           }
         />
 
+        {/* Checkout */}
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Orders */}
         <Route
           path="/orders"
           element={
@@ -60,6 +66,7 @@ function App() {
           }
         />
 
+        {/* Seller */}
         <Route
           path="/seller"
           element={
@@ -69,6 +76,7 @@ function App() {
           }
         />
 
+        {/* Admin */}
         <Route
           path="/admin"
           element={
